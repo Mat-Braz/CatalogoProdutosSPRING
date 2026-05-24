@@ -39,6 +39,15 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">Quantidade</label>
+                                <input type="number" th:field="*{quantidade}"
+                                       th:classappend="${#fields.hasErrors('quantidade') or erroQuantidade != null} ? 'is-invalid' : ''"
+                                       class="form-control">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('quantidade')}" th:errors="*{quantidade}"></div>
+                                <div class="invalid-feedback" th:if="${erroQuantidade}" th:text="${erroQuantidade}"></div>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label">Categoria</label>
                                 <select th:field="*{categoria}" class="form-select" required>
                                     <option value="" disabled selected>Selecione uma categoria...</option>

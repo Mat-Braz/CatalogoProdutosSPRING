@@ -28,6 +28,10 @@ public class ProdutoModel implements Serializable {
     @Positive(message = "O valor deve ser um número positivo.")
     private BigDecimal valor;
 
+    @NotNull(message = "A quantidade do produto é obrigatória.")
+    @Positive(message = "O quantidade deve ser maior do que 0.")
+    private Integer quantidade;
+
     @NotNull(message = "A categoria é obrigatória")
     @ManyToOne
     @JoinColumn(name = "id_categoria_fk")
@@ -58,7 +62,6 @@ public class ProdutoModel implements Serializable {
     public long getIdProduto() {
         return idProduto;
     }
-
     public void setIdProduto(long idProduto) {
         this.idProduto = idProduto;
     }
@@ -66,7 +69,6 @@ public class ProdutoModel implements Serializable {
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
@@ -74,15 +76,16 @@ public class ProdutoModel implements Serializable {
     public BigDecimal getValor() {
         return valor;
     }
-
     public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 
+    public Integer getQuantidade() { return  quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+
     public CategoriaModel getCategoria() {
         return categoria;
     }
-
     public void setCategoria(CategoriaModel categoria) {
         this.categoria = categoria;
     }

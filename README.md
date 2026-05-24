@@ -16,7 +16,7 @@ Através deste projeto, exploramos a transição de armazenamentos temporários 
 
 ## Principais Funcionalidades
 *   Gerenciamento completo (CRUD) de Produtos e Categorias.
-*   Sistema de busca e filtros dinâmicos por nome e categoria.
+*   Sistema de busca e filtros dinâmicos por nome, categoria e data de atualização.
 *   Controle de acesso diferenciado:
     *   Administrador (ADMIN): Acesso total para gerenciar produtos, categorias e usuários.
     *   Usuário (USER): Acesso de consulta aos produtos cadastrados.

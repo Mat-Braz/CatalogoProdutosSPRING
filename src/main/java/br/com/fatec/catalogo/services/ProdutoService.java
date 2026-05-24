@@ -33,12 +33,21 @@ public class ProdutoService {
         return repository.findByCategoriaIdCategoria(idCategoria);
     }
 
+    public List<ProdutoModel> listarPorDataAtualizacao() {
+        return repository.findAllByOrderByDataCadastroDesc();
+    }
+
+
     // Resolve o Desafio 2
     @Transactional
     public void salvar(ProdutoModel produto) {
         // Regra: Não permitir duplicidade de nome em novos registros
         if (produto.getIdProduto() == 0 && repository.existsByNome(produto.getNome())) {
             throw new RuntimeException("Já existe um produto com este nome.");
+        }
+        // Regra: Não permitir quantidade negativa ou nula
+        if (produto.getQuantidade() == null || produto.getQuantidade() < 0) {
+            throw new IllegalArgumentException("A quantidade não pode ser negativa.");
         }
         // --- ATUALIZAÇÃO DA DATA ---
         // Toda vez que salvar (seja novo ou edição), a data será o momento atual
@@ -51,4 +60,5 @@ public class ProdutoService {
     public void excluir(long id) {
         repository.deleteById(id);
     }
+
 }

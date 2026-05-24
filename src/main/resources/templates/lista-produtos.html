@@ -84,27 +84,41 @@
                 </div>
 
                 <div class="mt-2" th:if="${param.nome != null and param.nome != ''}">
-                    <small class="text-muted">Exibindo resultados para: <strong th:text="${param.nome}"></strong></small>
+                    <small class="text-muted">Exibindo resultados para: <strong
+                            th:text="${param.nome}"></strong></small>
                     <a th:href="@{/produtos}" class="badge bg-secondary text-decoration-none ms-2">Limpar busca</a>
                 </div>
             </form>
 
+            <div sec:authorize="hasRole('ADMIN')" class="d-flex gap-3 mb-3">
+                <span class="badge bg-danger p-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Estoque Baixo (menos de 5 unidades)
+                </span>
+            </div>
+
             <table class="table table-hover">
                 <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Categoria</th> <th>Preço (R$)</th>
+                    <th class="text-center">ID</th>
+                    <th class="text-center">Nome</th>
+                    <th class="text-center">Categoria</th>
+                    <th class="text-center">Quantidade</th>
+                    <th class="text-center">Preço (R$)</th>
+                    <th class="text-center" sec:authorize="hasRole('ADMIN')">Última Atualização</th>
                     <th class="text-center" sec:authorize="hasRole('ADMIN')">Ações</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="p : ${produtos}">
-                    <td th:text="${p.idProduto}"></td>
-                    <td th:text="${p.nome}"></td>
-                    <td th:text="${p.categoria != null ? p.categoria.nome : 'Sem Categoria'}"></td>
-                    <td th:text="${#numbers.formatDecimal(p.valor, 1, 'POINT', 2, 'COMMA')}"
+                <tr th:each="p : ${produtos}" th:classappend="${isAdmin and p.quantidade < 5} ? 'table-danger' : ''">
+                    <td class="text-center" th:text="${p.idProduto}"></td>
+                    <td class="text-center" th:text="${p.nome}"></td>
+                    <td class="text-center" th:text="${p.categoria != null ? p.categoria.nome : 'Sem Categoria'}"></td>
+                    <td class="text-center" th:text="${p.quantidade}"></td>
+                    <td class="text-center" th:text="${#numbers.formatDecimal(p.valor, 1, 'POINT', 2, 'COMMA')}"
                         th:classappend="${p.valor > 10000} ? 'text-danger fw-bold' : ''">
+                    </td>
+                    <td class="text-center" sec:authorize="hasRole('ADMIN')"
+                        th:text="${p.dataCadastro != null ? #temporals.format(p.dataCadastro, 'dd/MM/yyyy HH:mm') : 'Sem registro'}">
                     </td>
                     <td class="text-center" sec:authorize="hasRole('ADMIN')">
                         <a th:href="@{/produtos/editar/{id}(id=${p.idProduto})}"
