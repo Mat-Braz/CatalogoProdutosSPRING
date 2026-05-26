@@ -10,6 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequestMapping("/produtos")
@@ -24,22 +28,26 @@ public class ProdutoController {
                          Model model,
                          Authentication authentication) {
 
-        // 1. Lógica de Filtragem (Produtos)
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        model.addAttribute("isAdmin", isAdmin);
+
         if (nome != null && !nome.isBlank()) {
-            model.addAttribute("produtos", service.listarPorNome(nome));
+            model.addAttribute("produtos", isAdmin
+                    ? service.listarPorNome(nome)
+                    : service.listarPorNomeOrdenadoPorId(nome));
         } else if (categoriaId != null) {
-            model.addAttribute("produtos", service.listarPorCategoria(categoriaId));
+            model.addAttribute("produtos", isAdmin
+                    ? service.listarPorCategoria(categoriaId)
+                    : service.listarPorCategoriaOrdenadoPorId(categoriaId));
         } else {
-            model.addAttribute("produtos", service.listarTodos());
+            model.addAttribute("produtos", isAdmin
+                    ? service.listarTodos()
+                    : service.listarTodosOrdenadoPorId());
         }
 
-        // 2. O QUE ESTAVA FALTANDO: Carregar as categorias para o <select> do filtro
-        // Sem isso, o th:each="cat : ${categorias}" no HTML não encontra nada
         model.addAttribute("categorias", categoriaService.listarTodas());
-
-        // 3. Verificar se é ADMIN
-        model.addAttribute("isAdmin", authentication != null && authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
         return "lista-produtos";
     }
@@ -54,15 +62,26 @@ public class ProdutoController {
     @PostMapping("/salvar")
     public String salvar(@Valid @ModelAttribute("produto") ProdutoModel produto,
                          BindingResult result,
-                         Model model) {
+                         Model model,
+                         RedirectAttributes attrs) {
         if (result.hasErrors()) {
+            model.addAttribute("categorias", categoriaService.listarTodas());
             return "cadastro-produto";
         }
         try{
+            boolean isNovo = (produto.getIdProduto() == 0);;
             service.salvar(produto);
+
+            String horario = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm"));
+            String acao = isNovo ? "cadastrado" : "atualizado";
+            attrs.addFlashAttribute("sucesso",
+                    "Produto \"" + produto.getNome() + "\" " + acao + " com sucesso em " + horario + ".");
+
             return "redirect:/produtos";
         }catch (IllegalArgumentException e){
             model.addAttribute("erroQuantidade", e.getMessage());
+            model.addAttribute("categorias", categoriaService.listarTodas());
             return "cadastro-produto";
         }
     }
@@ -71,13 +90,45 @@ public class ProdutoController {
     public String editar(@PathVariable long id, Model model) {
         model.addAttribute("produto", service.buscarPorId(id));
         model.addAttribute("categorias", categoriaService.listarTodas());
-        return "cadastro-produto"; // Reutilizamos o mesmo form para editar
+        return "editar-produto"; // Reutilizamos o mesmo form para editar
     }
 
-    @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable long id) {
-        service.excluir(id);
+    @PostMapping("/excluir/{id}")
+    public String excluir(@PathVariable long id, RedirectAttributes attrs) {
+        try {
+            service.excluir(id);
+            attrs.addFlashAttribute("sucesso", "Produto excluído com sucesso.");
+        } catch (Exception e) {
+            attrs.addFlashAttribute("erro", "Não foi possível excluir o produto.");
+        }
         return "redirect:/produtos";
+    }
+
+    @PostMapping("/editar/{id}")
+    public String salvarEdicao(@PathVariable long id,
+                               @Valid @ModelAttribute("produto") ProdutoModel produto,
+                               BindingResult result,
+                               Model model,
+                               RedirectAttributes attrs) {
+        if (result.hasErrors()) {
+            model.addAttribute("categorias", categoriaService.listarTodas());
+            return "editar-produto";
+        }
+        try {
+            produto.setIdProduto(id);
+            service.salvar(produto);
+
+            String horario = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm"));
+            attrs.addFlashAttribute("sucesso",
+                    "Produto \"" + produto.getNome() + "\" atualizado com sucesso em " + horario + ".");
+
+            return "redirect:/produtos";
+        } catch (Exception e) {
+            model.addAttribute("erro", e.getMessage());
+            model.addAttribute("categorias", categoriaService.listarTodas());
+            return "editar-produto";
+        }
     }
 
     @Autowired

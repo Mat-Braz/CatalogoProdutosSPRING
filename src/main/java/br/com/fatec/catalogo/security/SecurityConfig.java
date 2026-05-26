@@ -21,19 +21,25 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").permitAll()
                         .requestMatchers("/categorias/**").hasRole("ADMIN")
-                        .requestMatchers("/usuarios/**").hasRole("ADMIN") // Somente Admin cadastra novos usuários
-                        .requestMatchers("/produtos").permitAll() // Público
-                        .requestMatchers("/produtos/novo", "/produtos/editar/**", "/produtos/excluir/**").hasRole("ADMIN")
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers("/produtos/novo").hasRole("ADMIN")
+                        .requestMatchers("/produtos/salvar").hasRole("ADMIN")
+                        .requestMatchers("/produtos/editar/**").hasRole("ADMIN")
+                        .requestMatchers("/produtos/excluir/**").hasRole("ADMIN")
+                        .requestMatchers("/produtos").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Define a rota da página customizada
+                        .loginPage("/login")
                         .defaultSuccessUrl("/produtos", true)
                         .permitAll()
                 )
-                .logout(logout -> logout.logoutSuccessUrl("/produtos"));
-                
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login")
+                        .permitAll()
+                );
 
         return http.build();
     }

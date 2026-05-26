@@ -16,12 +16,11 @@ public class ProdutoService {
     private ProdutoRepository repository;
 
     public List<ProdutoModel> listarTodos() {
-
-        return repository.findAll();
+        return repository.findAllByOrderByDataCadastroDesc();
     }
     // Resolve o Desafio 1
     public List<ProdutoModel> listarPorNome(String nome) {
-        return repository.findByNomeContainingIgnoreCase(nome);
+        return repository.findByNomeContainingIgnoreCaseOrderByDataCadastroDesc(nome);
     }
 
     public ProdutoModel buscarPorId(long id) {
@@ -30,11 +29,23 @@ public class ProdutoService {
     }
 
     public List<ProdutoModel> listarPorCategoria(Long idCategoria) {
-        return repository.findByCategoriaIdCategoria(idCategoria);
+        return repository.findByCategoriaIdCategoriaOrderByDataCadastroDesc(idCategoria);
     }
 
     public List<ProdutoModel> listarPorDataAtualizacao() {
         return repository.findAllByOrderByDataCadastroDesc();
+    }
+
+    public List<ProdutoModel> listarTodosOrdenadoPorId() {
+        return repository.findAllByOrderByIdProdutoAsc();
+    }
+
+    public List<ProdutoModel> listarPorNomeOrdenadoPorId(String nome) {
+        return repository.findByNomeContainingIgnoreCaseOrderByIdProdutoAsc(nome);
+    }
+
+    public List<ProdutoModel> listarPorCategoriaOrdenadoPorId(Long idCategoria) {
+        return repository.findByCategoriaIdCategoriaOrderByIdProdutoAsc(idCategoria);
     }
 
 
