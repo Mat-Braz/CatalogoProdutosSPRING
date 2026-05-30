@@ -42,9 +42,7 @@ public class ProdutoController {
                     ? service.listarPorCategoria(categoriaId)
                     : service.listarPorCategoriaOrdenadoPorId(categoriaId));
         } else {
-            model.addAttribute("produtos", isAdmin
-                    ? service.listarTodos()
-                    : service.listarTodosOrdenadoPorId());
+            model.addAttribute("produtos", service.listarTodosOrdenadoPorId());
         }
 
         model.addAttribute("categorias", categoriaService.listarTodas());
@@ -129,6 +127,11 @@ public class ProdutoController {
             model.addAttribute("categorias", categoriaService.listarTodas());
             return "editar-produto";
         }
+    }
+
+    @GetMapping("/historico")
+    public String historico(Model model) {
+        return "historico";
     }
 
     @Autowired

@@ -22,7 +22,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/produtos}">Produtos</a>
+                    <a class="nav-link" th:href="@{/historico}">Histórico</a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link" th:href="@{/categorias/novo}">Nova Categoria</a>
@@ -112,9 +112,8 @@
                     <th class="text-center">ID</th>
                     <th class="text-center">Nome</th>
                     <th class="text-center">Categoria</th>
-                    <th class="text-center" sec:authorize="hasRole('ADMIN')">Quantidade</th>
+                    <th class="text-center">Quantidade</th>
                     <th class="text-center">Preço (R$)</th>
-                    <th class="text-center" sec:authorize="hasRole('ADMIN')">Última Atualização</th>
                     <th class="text-center" sec:authorize="hasRole('ADMIN')">Ações</th>
                 </tr>
                 </thead>
@@ -126,9 +125,6 @@
                     <td class="text-center" sec:authorize="hasRole('ADMIN')" th:text="${p.quantidade}"></td>
                     <td class="text-center" th:text="${#numbers.formatDecimal(p.valor, 1, 'POINT', 2, 'COMMA')}"
                         th:classappend="${p.valor > 10000} ? 'text-danger fw-bold' : ''">
-                    </td>
-                    <td class="text-center" sec:authorize="hasRole('ADMIN')"
-                        th:text="${p.dataCadastro != null ? #temporals.format(p.dataCadastro, 'dd/MM/yyyy HH:mm') : 'Sem registro'}">
                     </td>
                     <td class="text-center" sec:authorize="hasRole('ADMIN')">
                         <a th:href="@{/produtos/editar/{id}(id=${p.idProduto})}"
